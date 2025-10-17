@@ -1,0 +1,82 @@
+#crear una clase abstracta MaterialBiblioteca que contenga
+from abc import ABC, abstractmethod
+class MaterialBiblioteca(ABC): # Clase abstracta
+    def __init__(self, titulo, autor):
+        self.titulo = titulo  # atributo público
+        self.autor = autor    # atributo público
+        self.__disponible = True  # atributo privado (encapsulado)
+
+    @abstractmethod
+    def mostrar_informacion(self):
+        pass
+
+    # Métodos para gestionar la disponibilidad (ENCAPSULACIÓN)
+    def prestar(self):
+        if self.__disponible:
+            self.__disponible = False
+            print(f"Has prestado '{self.titulo}'.")
+        else:
+            print(f"'{self.titulo}' no está disponible para préstamo.")
+
+    def devolver(self):
+        if not self.__disponible:
+            self.__disponible = True
+            print(f"Has devuelto '{self.titulo}'.")
+        else:
+            print(f"'{self.titulo}' ya está disponible en la biblioteca.")
+
+    def esta_disponible(self):
+        return self.__disponible
+#atributosbásicos como título y autor
+
+#un método abstracto para mostrar información (abstracción)
+
+#defenir clases hijas como Libro y Revista que hereden de MaterialBiblioteca (herencia)
+class Libro(MaterialBiblioteca): # Clase hija de MaterialBiblioteca
+    def __init__(self, titulo, autor, isbn):
+        super().__init__(titulo, autor)
+        self.isbn = isbn  # atributo público
+
+    def mostrar_informacion(self): # Implementación del método abstracto
+        disponibilidad = "Disponible" if self.esta_disponible() else "No disponible"
+        return f"Libro: '{self.titulo}' por {self.autor}, ISBN: {self.isbn}. Estado: {disponibilidad}"
+# redefinan el método para mostrar información (polimorfismo) para cada tipo de material
+class Revista(MaterialBiblioteca): # Clase hija de MaterialBiblioteca
+    def __init__(self, titulo, autor, numero):
+        super().__init__(titulo, autor)
+        self.numero = numero  # atributo público
+
+    def mostrar_informacion(self): # Implementación del método abstracto
+        disponibilidad = "Disponible" if self.esta_disponible() else "No disponible"
+        return f"Revista: '{self.titulo}' por {self.autor}, Número: {self.numero}. Estado: {disponibilidad}"
+#implementar encapsulación para atributos privados _disponible que indique si el material está disponible para préstamo
+
+#contolar el acceso mediante metodos publicos para prestar y devolver el material(encapsulación
+
+#crear un programa ue permita gestionar una lista de materiales, recorrerl y mostrar su información y estado de disponibilidad 
+if __name__ == "__main__":
+    # Crear instancias de materiales
+    libro1 = Libro("Cien Años de Soledad", "Gabriel García Márquez", "978-3-16-148410-0")
+    revista1 = Revista("National Geographic", "Varios Autores", 202)
+
+    # Lista de materiales
+    materiales = [libro1, revista1]
+
+    # Mostrar información inicial
+    for material in materiales:
+        print(material.mostrar_informacion())
+
+    # Prestar y devolver materiales
+    libro1.prestar()
+    revista1.prestar()
+
+    # Mostrar información después de prestar
+    for material in materiales:
+        print(material.mostrar_informacion())
+
+    libro1.devolver()
+    revista1.devolver()
+
+    # Mostrar información final
+    for material in materiales:
+        print(material.mostrar_informacion())
