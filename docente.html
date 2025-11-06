@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda de Docente</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #FFB6C1; /* Rosa claro como base */
+            background-image: url('https://images.unsplash.com/photo-1490750967868-88aa4486c946?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'); /* Imagen de flores primaverales de Unsplash */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: #C71585; /* Rosa oscuro */
+            margin: 0;
+            padding: 20px;
+            position: relative;
+        }
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 182, 193, 0.7); /* Opacidad rosa para superponer la imagen */
+            z-index: -1;
+        }
+        h1 {
+            text-align: center;
+            color: #C71585;
+            position: relative;
+            z-index: 1;
+        }
+        .tab {
+            overflow: hidden;
+            border: 1px solid #C71585;
+            background-color: rgba(255, 192, 203, 0.9); /* Rosa más claro con transparencia */
+            position: relative;
+            z-index: 1;
+        }
+        .tab button {
+            background-color: inherit;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 16px;
+            transition: 0.3s;
+            color: #C71585;
+        }
+        .tab button:hover {
+            background-color: rgba(255, 182, 193, 0.8);
+        }
+        .tab button.active {
+            background-color: #C71585;
+            color: white;
+        }
+        .tabcontent {
+            display: none;
+            padding: 6px 12px;
+            border: 1px solid #C71585;
+            border-top: none;
+            background-color: rgba(255, 240, 245, 0.9); /* Rosa muy claro con transparencia */
+            position: relative;
+            z-index: 1;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input, button {
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #C71585;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #C71585;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #DC143C; /* Rosa más oscuro */
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background-color: rgba(255, 192, 203, 0.8);
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Agenda de Docentes</h1>
+
+    <div class="tab">
+        <button class="tablinks" onclick="openTab(event, 'Materias')">Materias</button>
+        <button class="tablinks" onclick="openTab(event, 'Alumnos')">Alumnos</button>
+        <button class="tablinks" onclick="openTab(event, 'Asistencias')">Asistencias</button>
+    </div>
+
+    <div id="Materias" class="tabcontent">
+        <h2>Materias</h2>
+        <form id="form-materia">
+            <input type="text" id="nombre-materia" placeholder="Nombre de la Materia" required>
+            <input type="text" id="docente" placeholder="Docente" required>
+            <button type="submit">Agregar Materia</button>
+        </form>
+        <ul id="lista-materias"></ul>
+    </div>
+
+    <div id="Alumnos" class="tabcontent">
+        <h2>Alumnos</h2>
+        <form id="form-alumno">
+            <input type="text" id="nombre-alumno" placeholder="Nombre" required>
+            <input type="text" id="apellido-alumno" placeholder="Apellido" required>
+            <input type="number" id="materia-id-alumno" placeholder="ID de la Materia" required>
+            <button type="submit">Agregar Alumno</button>
+        </form>
+        <ul id="lista-alumnos"></ul>
+    </div>
+
+    <div id="Asistencias" class="tabcontent">
+        <h2>Asistencias</h2>
+        <form id="form-asistencia">
+            <input type="number" id="alumno-id-asistencia" placeholder="ID del Alumno" required>
+            <input type="date" id="fecha-asistencia" required>
+            <input type="checkbox" id="presente"> Presente
+            <button type="submit">Registrar Asistencia</button>
+        </form>
+        <ul id="lista-asistencias"></ul>
+    </div>
+
+    <script>
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+
+        // Cargar datos al inicio
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarMaterias();
+            cargarAlumnos();
+            cargarAsistencias();
+        });
+
+        // Formularios
+        document.getElementById('form-materia').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const data = new FormData();
+            data.append('nombre', document.getElementById('nombre-materia').value);
+            data.append('docente', document.getElementById('docente').value);
+            fetch('/agregar_materia', { method: 'POST', body: data }).then(() => cargarMaterias());
+        });
+
+        document.getElementById('form-alumno').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const data = new FormData();
+            data.append('nombre', document.getElementById('nombre-alumno').value);
+            data.append('apellido', document.getElementById('apellido-alumno').value);
+            data.append('materia_id', document.getElementById('materia-id-alumno').value);
+            fetch('/agregar_alumno', { method: 'POST', body: data }).then(() => cargarAlumnos());
+        });
+
+        document.getElementById('form-asistencia').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const data = new FormData();
+            data.append('alumno_id', document.getElementById('alumno-id-asistencia').value);
+            data.append('fecha', document.getElementById('fecha-asistencia').value);
+            if (document.getElementById('presente').checked) data.append('presente', 'on');
+            fetch('/agregar_asistencia', { method: 'POST', body: data }).then(() => cargarAsistencias());
+        });
+
+        // Funciones para cargar listas
+        function cargarMaterias() {
+            fetch('/cargar_materias').then(res => res.json()).then(data => {
+                const ul = document.getElementById('lista-materias');
+                ul.innerHTML = '';
+                data.forEach(row => ul.innerHTML += `<li>ID: ${row[0]} - ${row[1]} (Docente: ${row[2]})</li>`);
+            });
+        }
+
+        function cargarAlumnos() {
+            fetch('/cargar_alumnos').then(res => res.json()).then(data => {
+                const ul = document.getElementById('lista-alumnos');
+                ul.innerHTML = '';
+                data.forEach(row => ul.innerHTML += `<li>ID: ${row[0]} - ${row[1]} ${row[2]} (Materia: ${row[3]})</li>`);
+            });
+        }
+
+        function cargarAsistencias() {
+            fetch('/cargar_asistencias').then(res => res.json()).then(data => {
+                const ul = document.getElementById('lista-asistencias');
+                ul.innerHTML = '';
+                data.forEach(row => {
+                    const status = row[4] ? 'Presente' : 'Ausente';
+                    ul.innerHTML += `<li>ID: ${row[0]} - ${row[1]} ${row[2]} (${row[3]}: ${status})</li>`;
+                });
+            });
+        }
+    </script>
+</body>
+</html>
